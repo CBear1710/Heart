@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="Keywords" content="爱心代码，程序员表白" />
+  <meta name="Description" content="爱心代码，HTML文件，何书悦GitHub爱心代码项目" />
+  <title>I love you</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; }
+    canvas { position: absolute; width: 100%; height: 100%; }
+
+    #pinkboard {
+      animation: anim 1.5s ease-in-out infinite;
+      -webkit-animation: anim 1.5s ease-in-out infinite;
+      -o-animation: anim 1.5s ease-in-out infinite;
+      -moz-animation: anim 1.5s ease-in-out infinite;
+    }
+    @keyframes anim { 0%{transform:scale(.8)}25%{transform:scale(.7)}50%{transform:scale(1)}75%{transform:scale(.7)}100%{transform:scale(.8)} }
+    @-webkit-keyframes anim { 0%{-webkit-transform:scale(.8)}25%{-webkit-transform:scale(.7)}50%{-webkit-transform:scale(1)}75%{-webkit-transform:scale(.7)}100%{-webkit-transform:scale(.8)} }
+    @-o-keyframes anim { 0%{-o-transform:scale(.8)}25%{-o-transform:scale(.7)}50%{-o-transform:scale(1)}75%{-o-transform:scale(.7)}100%{-o-transform:scale(.8)} }
+    @-moz-keyframes anim { 0%{-moz-transform:scale(.8)}25%{-moz-transform:scale(.7)}50%{-moz-transform:scale(1)}75%{-moz-transform:scale(.7)}100%{-moz-transform:scale(.8)} }
+
+    #name {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      margin-top: -20px; font-size: 46px; color: #ea80b0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="pinkboard" width="1920" height="947"></canvas>
+  <canvas id="canvas" width="1920" height="947"></canvas>
+
+  <!-- Floating colorful text hearts -->
+  <script>
+    const colors = [
+      "#eec996","#8fb7d3","#b7d4c6","#c3bedd","#f1d5e4","#cae1d3",
+      "#f3c89d","#d0b0c3","#819d53","#c99294","#cec884","#ff8e70",
+      "#e0a111","#fffdf6","#cbd7ac","#e8c6c0","#dc9898","#ecc8ba"
+    ];
+
+    const qs = new URLSearchParams(location.search);
+    // Edit this array to your phrases, or pass ?msgs=Text1|Text2|Text3 in the URL
+    const listParam = qs.get('msgs');
+    const MESSAGES = listParam
+      ? listParam.split('|')
+      : ["欣欣 💖","Hanna","Hân"];
+    const FONT_FAMILY = '"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans",Arial,sans-serif';
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    let ww = window.innerWidth, wh = window.innerHeight;
+
+    const hearts = [];
+
+    function init() {
+      requestAnimationFrame(render);
+      canvas.width = ww; canvas.height = wh;
+      for (let i = 0; i < 100; i++) hearts.push(new Heart());
+    }
+
+    function Heart() {
+      this.x = Math.random() * ww;
+      this.y = Math.random() * wh;
+      this.opacity = Math.random() * 0.5 + 0.5;
+      this.vel = { x: (Math.random() - 0.5) * 4, y: (Math.random() - 0.5) * 4 };
+      this.targetScale = Math.random() * 0.15 + 0.02;
+      this.scale = this.targetScale * Math.random();
+      this.text = MESSAGES[(Math.random() * MESSAGES.length) | 0]; 
+      this.width = 473.8;   // drawing bounds (kept from original)
+      this.height = 408.6;
+    }
+
+    Heart.prototype.update = function () {
+      this.x += this.vel.x;
+      this.y += this.vel.y;
+      this.scale += (this.targetScale - this.scale) * 0.01;
+
+      // when off-screen, respawn and choose a new text
+      if (this.x - this.width > ww || this.x + this.width < 0) {
+        this.scale = 0;
+        this.x = Math.random() * ww;
+        this.text = MESSAGES[(Math.random() * MESSAGES.length) | 0];
+      }
+      if (this.y - this.height > wh || this.y + this.height < 0) {
+        this.scale = 0;
+        this.y = Math.random() * wh;
+        this.text = MESSAGES[(Math.random() * MESSAGES.length) | 0];
+      }
+    };
+
+    Heart.prototype.draw = function (i) {
+      ctx.globalAlpha = this.opacity;
+      ctx.font = `${Math.round(180 * this.scale)}px ${FONT_FAMILY}`;
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillText(
+        this.text,
+        this.x - this.width * 0.5,
+        this.y - this.height * 0.5,
+        this.width
+      );
+    };
+
+    function render() {
+      ctx.clearRect(0, 0, ww, wh);
+      for (let i = 0; i < hearts.length; i++) {
+        hearts[i].update();
+        hearts[i].draw(i);
+      }
+      requestAnimationFrame(render);
+    }
+    init();
+
+    window.addEventListener("resize", () => {
+      ww = window.innerWidth; wh = window.innerHeight;
+      canvas.width = ww; canvas.height = wh;
+    });
+  </script>
+
+  <!-- Pink particle heart background -->
+  <script>
+    var settings = {
+      particles: { length: 500, duration: 2, velocity: 100, effect: -0.75, size: 30 }
+    };
+
+    (function () {
+      var b = 0, c = ["ms","moz","webkit","o"];
+      for (var a = 0; a < c.length && !window.requestAnimationFrame; ++a) {
+        window.requestAnimationFrame = window[c[a] + "RequestAnimationFrame"];
+        window.cancelAnimationFrame =
+          window[c[a] + "CancelAnimationFrame"] || window[c[a] + "CancelRequestAnimationFrame"];
+      }
+      if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function (h) {
+          var d = new Date().getTime(), f = Math.max(0, 16 - (d - b));
+          var g = window.setTimeout(function () { h(d + f); }, f);
+          b = d + f; return g;
+        };
+      }
+      if (!window.cancelAnimationFrame) {
+        window.cancelAnimationFrame = function (d) { clearTimeout(d); };
+      }
+    })();
+
+    var Point = (function () {
+      function Point(x, y) { this.x = x || 0; this.y = y || 0; }
+      Point.prototype.clone = function () { return new Point(this.x, this.y); };
+      Point.prototype.length = function (length) {
+        if (typeof length == "undefined") return Math.sqrt(this.x*this.x + this.y*this.y);
+        this.normalize(); this.x *= length; this.y *= length; return this;
+      };
+      Point.prototype.normalize = function () {
+        var length = this.length(); this.x /= length; this.y /= length; return this;
+      };
+      return Point;
+    })();
+
+    var Particle = (function () {
+      function Particle() { this.position=new Point(); this.velocity=new Point(); this.acceleration=new Point(); this.age=0; }
+      Particle.prototype.initialize = function (x,y,dx,dy) {
+        this.position.x=x; this.position.y=y;
+        this.velocity.x=dx; this.velocity.y=dy;
+        this.acceleration.x=dx*settings.particles.effect;
+        this.acceleration.y=dy*settings.particles.effect;
+        this.age=0;
+      };
+      Particle.prototype.update = function (dt) {
+        this.position.x += this.velocity.x * dt;
+        this.position.y += this.velocity.y * dt;
+        this.velocity.x += this.acceleration.x * dt;
+        this.velocity.y += this.acceleration.y * dt;
+        this.age += dt;
+      };
+      Particle.prototype.draw = function (context, image) {
+        function ease(t){ return --t*t*t + 1; }
+        var size = image.width * ease(this.age / settings.particles.duration);
+        context.globalAlpha = 1 - this.age / settings.particles.duration;
+        context.drawImage(image, this.position.x - size/2, this.position.y - size/2, size, size);
+      };
+      return Particle;
+    })();
+
+    var ParticlePool = (function () {
+      var particles, firstActive = 0, firstFree = 0, duration = settings.particles.duration;
+      function ParticlePool(length) { particles = new Array(length); for (var i=0;i<particles.length;i++) particles[i]=new Particle(); }
+      ParticlePool.prototype.add = function (x,y,dx,dy) {
+        particles[firstFree].initialize(x,y,dx,dy);
+        firstFree++; if (firstFree == particles.length) firstFree = 0;
+        if (firstActive == firstFree) firstActive++; if (firstActive == particles.length) firstActive = 0;
+      };
+      ParticlePool.prototype.update = function (dt) {
+        var i;
+        if (firstActive < firstFree) { for (i=firstActive; i<firstFree; i++) particles[i].update(dt); }
+        if (firstFree < firstActive) {
+          for (i=firstActive; i<particles.length; i++) particles[i].update(dt);
+          for (i=0; i<firstFree; i++) particles[i].update(dt);
+        }
+        while (particles[firstActive].age >= duration && firstActive != firstFree) {
+          firstActive++; if (firstActive == particles.length) firstActive = 0;
+        }
+      };
+      ParticlePool.prototype.draw = function (context, image) {
+        var i;
+        if (firstActive < firstFree) { for (i=firstActive; i<firstFree; i++) particles[i].draw(context, image); }
+        if (firstFree < firstActive) {
+          for (i=firstActive; i<particles.length; i++) particles[i].draw(context, image);
+          for (i=0; i<firstFree; i++) particles[i].draw(context, image);
+        }
+      };
+      return ParticlePool;
+    })();
+
+    (function (canvas) {
+      var context = canvas.getContext("2d"),
+          particles = new ParticlePool(settings.particles.length),
+          particleRate = settings.particles.length / settings.particles.duration, // particles/sec
+          time;
+
+      function pointOnHeart(t) {
+        return new Point(
+          160*Math.pow(Math.sin(t),3),
+          130*Math.cos(t) - 50*Math.cos(2*t) - 20*Math.cos(3*t) - 10*Math.cos(4*t) + 25
+        );
+      }
+
+      var image = (function () {
+        var canvas = document.createElement("canvas"), context = canvas.getContext("2d");
+        canvas.width = settings.particles.size; canvas.height = settings.particles.size;
+        function to(t) {
+          var p = pointOnHeart(t);
+          p.x = settings.particles.size/2 + (p.x * settings.particles.size)/350;
+          p.y = settings.particles.size/2 - (p.y * settings.particles.size)/350;
+          return p;
+        }
+        context.beginPath();
+        var t = -Math.PI, p = to(t); context.moveTo(p.x, p.y);
+        while (t < Math.PI) { t += 0.01; p = to(t); context.lineTo(p.x, p.y); }
+        context.closePath();
+        context.fillStyle = "#ea80b0"; context.fill();
+        var img = new Image(); img.src = canvas.toDataURL(); return img;
+      })();
+
+      function render() {
+        requestAnimationFrame(render);
+        var newTime = new Date().getTime() / 1000, dt = newTime - (time || newTime); time = newTime;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        var amount = particleRate * dt;
+        for (var i = 0; i < amount; i++) {
+          var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+          var dir = pos.clone().length(settings.particles.velocity);
+          particles.add(canvas.width/2 + pos.x, canvas.height/2 - pos.y, dir.x, -dir.y);
+        }
+        particles.update(dt);
+        particles.draw(context, image);
+      }
+
+      function onResize() { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
+      window.onresize = onResize;
+
+      setTimeout(function () { onResize(); render(); }, 10);
+    })(document.getElementById("pinkboard"));
+  </script>
+</body>
+</html>
